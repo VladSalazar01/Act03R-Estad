@@ -1,0 +1,140 @@
+---
+title: "Resolución Actividad 3-Grupal Máster Bioinformática UNIR (2025)"
+author: "Yuli Del Cisne Giron Castillo\n
+
+         Kelly Ailen Loja Chalen \n
+         
+         Carolina Jacqueline Panchana Torres \n
+         
+         Vladimir Oswaldo Salazar Córdova \n
+         
+         Cristhian Santiago Vasco Toapanta\n
+        "
+date: "2025-06-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(readr)
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(psych)
+library(moments)
+library(nortest)
+library(car)
+library(ggplot2)
+library(summarytools)
+library(patchwork)
+library(cowplot)
+library(purrr)
+library(gtsummary)
+library(gtable)
+library(egg)
+library(psych)
+library(factoextra)
+library(magrittr)
+library(kableExtra)
+library(FactoMineR)
+library(tidyverse)
+library(stats)
+library(pheatmap)
+library(gt)
+```
+
+
+#1.  Abrir, explorar y preprocesar la base de datos:
+
+```{r Procesar datos}
+
+if (rstudioapi::isAvailable()) {
+  knitr::opts_knit$set(root.dir = dirname(rstudioapi::getActiveDocumentContext()$path))
+} else {
+# establece el directorio de trabajo manualmente, por ejemplo:
+  knitr::opts_knit$set(root.dir = getwd())
+}
+# Verificar la carpeta de trabajo actual
+print(getwd())
+
+
+datos <- read.csv("Dataset expresión genes.csv ", header = TRUE, sep = ",")
+View(datos)
+anyNA(datos)
+
+#Filtrar las columnes de la expresion genica
+genes <- datos %>% select(starts_with("AQ_"))
+
+#Determinar la normalidad de los datos 
+tabla_resultados <- tibble(
+  Variable = character(),
+  `Test utilizado` = character(),
+  `Valor p` = numeric(),
+  Interpretación = character()
+)
+
+for (gen in colnames(genes)) {
+  valores <- genes[[gen]]
+  valores <- valores[!is.na(valores)]
+  
+  if (length(valores) < 50) {
+    test <- shapiro.test(valores)
+    test_usado <- "Shapiro-Wilk"
+  } else {
+    test <- ad.test(valores)
+    test_usado <- "Anderson-Darling"
+  }
+  
+  valor_p <- round(test$p.value, 8)
+  interpretacion <- ifelse(valor_p >= 0.05, "Distribución normal", "No distribución normal")
+  
+  tabla_resultados <- add_row(tabla_resultados,
+                       Variable = gen,
+               `Test utilizado` = test_usado,
+                      `Valor p` = valor_p,
+                 Interpretación = interpretacion)
+}
+
+tabla_gt <- tabla_resultados %>%
+  gt() %>%
+  tab_header(
+    title = md("**Tabla 1.** Evaluación de la normalidad de la expresión génica")
+  ) %>%
+  tab_source_note(md("Valores p obtenidos mediante Shapiro-Wilk (N < 50) o Anderson-Darling (N ≥ 50)"))
+
+# Mostrar tabla
+tabla_gt
+
+
+```
+
+```{r PCA}
+
+#Escalar los datos de expresion genica
+
+genes_scaled <- scale(genes)
+
+#Aplicar el PCA
+
+pca_result <- prcomp(genes_scaled, center = TRUE, scale. = TRUE)
+
+#obtencion de los componentes
+genes$componente <- pca_result$x
+
+#tabla de cargas por componete 1 y 2
+
+componentes <- pca_result$rotation
+comp1 <- componentes[, 1:2]
+comp1 <- as.data.frame(comp1)
+comp1
+
+# datos propios de los componentes principales
+get_eigenvalue(pca_result)
+
+# Visualizar varianza explicada
+fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 40))
+
+```
+
+
+
