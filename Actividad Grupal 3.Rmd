@@ -138,3 +138,70 @@ fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 40))
 
 
 
+```{r fig.width=12, fig.height=8}
+# Explicación de gráficos en PCA
+
+# 1. Extraer los resultados de las variables 
+var_results <- get_pca_var(pca_result) 
+# var_results$coord          # Coordenadas 
+# var_results$cos2           # Calidad de representación (cos2) 
+# var_results$contrib        # Contribuciones 
+
+# 2. Visualizar el gráfico de correlación variable 
+# Muestra las relaciones entre todas las variables
+# Las variables correlacionadas positivamente se agrupan 
+# Las variables correlacionadas negativamente se colocan en lados opuestos 
+# La distancia entre las variables y el origen mide la calidad de las variables 
+fviz_pca_var(pca_result, col.var = "black") 
+
+# Visualizar el gráfico de correlación variable coloreado por cos2 
+# Las variables con valores bajos de cos2 se colorearán en ”#00AFBB" 
+# Las variables con valores medios de cos2 se colorearán en ”#322899" 
+# Las variables con valores altos de cos2 se colorearán en “#FC4E07” 
+fviz_pca_var(pca_result, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#322899", "#FC4E07"), 
+             repel = TRUE) # Evitar el overlapping 
+
+
+# 3. Visualizar la representación de cada variable en las dimensiones 1 y 2 (cos2) 
+# Un cos2 alto = buena representación de la variable en el componente principal 
+# Un cos2 bajo = la variable no está perfectamente representada por los PC 
+fviz_cos2(pca_result, choice = "var", axes = 1:2) 
+
+# 4. Visualizar la importancia (contribución) de cada variable por dimensiones 
+# Contribución a la Dimensión 1
+fviz_contrib(pca_result, choice = "var", axes = 1, top = 10) 
+
+# Contribución a la Dimensión 2
+fviz_contrib(pca_result, choice = "var", axes = 2, top = 10) 
+
+
+
+# 5. Visualizar a los individuos
+
+# Colorear a los individuos por sus valores cos2
+# Los individuos con valores bajos de cos2 se colorearán en ”#00AFBB" 
+# Los individuos con valores medios de cos2 se colorearán en ”#322899" 
+# Los individuos con valores altos de cos2 se colorearán en “#FC4E07” 
+# Los individuos similares se agrupan 
+fviz_pca_ind(pca_result, col.ind = "cos2", 
+             gradient.cols = c("#00AFBB", "#322899", "#FC4E07"), 
+             repel = TRUE) 
+
+# Visualizar individuos controlando tamaño y forma por cos2 
+fviz_pca_ind(pca_result, pointsize = "cos2", 
+             pointshape = 21, fill = "#322899", 
+             repel = TRUE) 
+
+
+# 6. Visualizar el biplot de individuos y variables 
+# Dim1 - y Dim2 - : individuos y variables con valores bajos en ambas dimensiones. 
+# Podría indicar que los individuos y las variables están negativamente relacionados en ambas dimensiones. 
+# Dim1 + y Dim2 + : individuos y variables con valores altos en ambas dimensiones.
+# Puede interpretarse como una relación positiva en ambas dimensiones. 
+fviz_pca_biplot(pca_result, repel = TRUE,
+                col.var = "#1A6ADB", # Variables color 
+                col.ind = "#FC4E07"  # Individuals color 
+                )
+```
+
