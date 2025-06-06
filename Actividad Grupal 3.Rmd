@@ -136,5 +136,81 @@ fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 40))
 
 ```
 
+#2. Aplicar el PCA
+```{r PCA}
 
+#Escalar los datos de expresion genica
+
+genes_scaled <- scale(genes)
+
+#Calcular el PCA
+pca_result <- prcomp(genes_scaled, center = TRUE, scale. = TRUE)
+
+#Extraer los componentes
+pca_df <- data.frame(pca_result$x)
+
+#Obtener los eigenvalues
+library(factoextra)
+eigenvalues <- get_eigenvalue(pca_result)
+eigenvalues
+
+#Extraer las varianzas de los componenetes
+varianzas <- pca_result$sdev^2
+
+#Calcular la varianza total
+total_varianza <- sum(varianzas)
+
+#Varianza explicada por cada componente
+varianza_explicada <- varianzas / total_varianza
+
+#Varianza acumulara
+varianza_acumulada <- cumsum(varianza_explicada)
+
+#Mostrar tabla de varianzas
+tabla_varianza <- data.frame(
+  Componente = 1: length(varianza_explicada), 
+  Varianza_Explicada = round(varianza_explicada * 100, 2),
+  Varianza_Acumulada = round(varianza_acumulada * 100, 2)
+)
+
+tabla_varianza
+
+#Determinar cuántos componentes explican por lo menos el 70% de la varianza
+n.pc <- min(which(varianza_acumulada > 0.7 ))
+paste("Se necesita", n.pc, "Componentes para explicar el 70% de la varianza")
+
+fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 40))
+
+#Extraer resultados de los individuos
+ind <- get_pca_ind(pca_result)
+head(ind$coord)
+
+#Extraer resultados de las variables
+var <- get_pca_var(pca_result)
+head(var$coord)
+
+#Visualizar importancia de cada variable en PC1 y PC2
+fviz_cos2(pca_result, choice = "var", axes = 1:2)
+#Visualizar variabls mas importantes en PC1
+fviz_contrib(pca_result, choice = "var", axes = 1,top = 10 )
+#Etiquetas de los ejes para el gráfico de dispersion
+
+x_label <- paste0("PC1 (", round(varianza_explicada[1] * 100, 2), "%)")
+y_label <- paste0("PC2 (", round(varianza_explicada[2] * 100, 2), "%)")
+
+#Genrar grafico de dispersion de los dos primeros componentes
+
+ggplot(pca_df, aes(x=PC1, y=PC2))+
+  geom_point(size = 3, color = "steelblue") +
+  labs(title = "PCA - Expresión Genética", x = x_label, y = y_label)+
+  theme_classic() +
+  theme(panel.grid.major = element_line(color = "gray90"),
+        panel.background = element_rect(fill = "gray95"),
+        plot.title = element_text(hjust = 0.5))
+
+#Carga de los dos primeros componentes
+cargas<- as.data.frame(pca_result$rotation[, 1:3])
+cargas
+
+```
 
