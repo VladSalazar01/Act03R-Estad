@@ -108,7 +108,7 @@ tabla_gt
 
 ```
 
-```
+
 #2. Aplicar el PCA
 ```{r PCA}
 
