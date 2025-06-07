@@ -381,7 +381,7 @@ La interpretación del color, basada en la leyenda del gráfico y la corresponde
                                                                                                   
                                                                                       
 
-Unifique los dos codigos el mio y el tuyo
+
                                                                                                   
                                                                                                   
 ```{r}
