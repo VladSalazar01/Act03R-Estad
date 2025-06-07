@@ -167,7 +167,7 @@ tabla_varianza
 n.pc <- min(which(varianza_acumulada > 0.7 ))
 paste("Se necesita", n.pc, "Componentes para explicar el 70% de la varianza")
 
-fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 40))
+fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 60))
 
 #Extraer resultados de los individuos
 ind <- get_pca_ind(pca_result)
