@@ -69,7 +69,7 @@ genes <- datos %>% select(starts_with("AQ_"))
 tabla_resultados <- tibble(
   Variable = character(),
   `Test utilizado` = character(),
-  `Valor p` = numeric(),
+  `Valor p` = character(),
   Interpretación = character()
 )
 
@@ -85,9 +85,9 @@ for (gen in colnames(genes)) {
     test_usado <- "Anderson-Darling"
   }
   
-  valor_p <- round(test$p.value, 8)
-  interpretacion <- ifelse(valor_p >= 0.05, "Distribución normal", "No distribución normal")
-  
+ valor_p <- formatC( valor_p_numerico, format = "e", digits=2)
+  interpretacion <- ifelse(valor_p_numerico >= 0.05, "Distribución normal", "No distribución normal")
+
   tabla_resultados <- add_row(tabla_resultados,
                               Variable = gen,
                               `Test utilizado` = test_usado,
