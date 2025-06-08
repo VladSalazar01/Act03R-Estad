@@ -55,7 +55,7 @@ library(gt)
 ```
 
 
-#1.  Abrir, explorar y preprocesar la base de datos:
+# 1 Abrir, explorar y preprocesar la base de datos:
 
 ```{r Procesar datos}
 
@@ -124,7 +124,7 @@ tabla_gt
 ```
 
 
-#2. Aplicar el PCA
+# Aplicar el PCA
 ```{r PCA}
 
 #Escalar los datos de expresion genica
@@ -209,7 +209,8 @@ fviz_pca_biplot(pca_result,
                 title = "Biplot PCA: Individuos y Variables")
 
 ```
-# 3. Crear gráficos descriptivos de los componentes principales:
+
+# Crear gráficos descriptivos de los componentes principales:
 
 ```{r fig.width=12, fig.height=8}
 # Explicación de gráficos en PCA
@@ -278,9 +279,7 @@ fviz_pca_biplot(pca_result, repel = TRUE,
 )
 ```
 
-
-
-## 3.1 Gráfico 1: Variables - PCA (Fechas negras) 
+## Gráfico 1: Variables - PCA (Fechas negras) 
 
 - Representación de Variables: Cada flecha representa una variable. La dirección y longitud de la flecha indican cómo cada variable contribuye a los dos componentes principales.
 - Correlaciones entre Variables: 
@@ -297,7 +296,7 @@ o	Variables como AQ_CCL2, AQ_LIF, AQ_FOXP3 contribuyen a Dim2 en la dirección p
 o	Variables como AQ_ARG1, AQ_IL10, AQ_SLC2A4 contribuyen a Dim2 en la dirección negativa.
 
 
-## 3.2 Gráfico 2: Variables - PCA (Coloreado por cos2) 
+## Gráfico 2: Variables - PCA (Coloreado por cos2) 
 
 La interpretación del color, basada en la leyenda del gráfico y la correspondencia con los códigos hexadecimales proporcionados (#00AFBB para cos2 bajo, #322899 para cos2 medio, y #FC4E07 para cos2 alto), es la siguiente:
   
@@ -310,7 +309,7 @@ La interpretación del color, basada en la leyenda del gráfico y la corresponde
    - Variables con cos2 bajo (coloreadas en cian-azulado, #00AFBB): Estas variables están pobremente representadas por los dos primeros componentes principales, con valores de cos2 iguales o inferiores a 0.25. Notablemente, las variables AQ_ADIPOQ y AQ_NOX5, situadas en el lado derecho del gráfico, muestran esta coloración cian-azulada. Aunque se proyectan a una distancia considerable del origen a lo largo de Dim1, su color indica que el plano Dim1-Dim2 no capta una porción sustancial de su varianza total en comparación con las variables de cos2 alto. Esto demuestra que otros componentes principales (Dim3 en adelante) podrían ser importantes para explicar la varianza de AQ_ADIPOQ y AQ_NOX5.
                                                                                     
                                                                                     
-## 3.3 Gráfico 3: Cos2 de variables a Dim-1-2 
+## Gráfico 3: Cos2 de variables a Dim-1-2 
                                                                                     
  Este diagrama de barras muestra la calidad de representación (cos2) de cada variable, específicamente para el plano formado por Dim1 y Dim2. Un valor de cos2 alto significa que la variable está bien representada por estos dos componentes principales. 
                                                                                     - Variables Mejor Representadas: Variables como AQ_JAK1, AQ_PTAFR, AQ_SREBF1, AQ_CCL5, AQ_MAPK1 y AQ_CCR5 muestran los valores de cos2 más altos, indicando que una gran proporción de su varianza es explicada por Dim1 y Dim2.
@@ -318,7 +317,7 @@ La interpretación del color, basada en la leyenda del gráfico y la corresponde
                                                                                     - Variables Peor Representadas: En contraste, variables como AQ_SLC2A4, AQ_ADIPOQ y AQ_NOX5 muestran los valores de cos2 más bajos en este gráfico. Esto demuestra que, según esta métrica particular (suma de cos2 en Dim1 y Dim2), estas variables no están tan bien representadas por los dos primeros componentes principales combinados como otras variables. Esto puede parecer contradictorio con su posición prominente en el Gráfico 2, especialmente para AQ_ADIPOQ y AQ_NOX5. Una posible explicación es que, aunque estas variables puedan tener una fuerte proyección en una de las dimensiones (principalmente Dim1), su varianza podría no estar tan concentrada exclusivamente en el plano Dim1-Dim2 en comparación con variables como AQ_JAK1. Es decir, otras dimensiones podrían ser importantes para capturar completamente la varianza de AQ_ADIPOQ y AQ_NOX5, o su representación podría estar fuertemente dominada por una sola de estas dos dimensiones.
                                                                                     
                                                                                     
-## 3.4 Gráfico 4: Contribución de las variables a Dim-1 
+## Gráfico 4: Contribución de las variables a Dim-1 
                                                                                     
   La línea roja discontinua representa el nivel de contribución esperado si todas las variables contribuyeran por igual.
                                                                                     
@@ -328,7 +327,7 @@ La interpretación del color, basada en la leyenda del gráfico y la corresponde
                                                                                     
                                                                                     
                                                                                     
-## 3.5 Gráfico 5: Contribución de las variables a Dim-2 
+## Gráfico 5: Contribución de las variables a Dim-2 
                                                                                     
   Similar al gráfico anterior, este muestra la contribución porcentual de las 10 variables principales a la Dimensión 2 (Dim2). Dim2 explica el 6.5% de la varianza total.
                                                                                     
@@ -337,7 +336,7 @@ La interpretación del color, basada en la leyenda del gráfico y la corresponde
  - Estas variables son importantes para interpretar el eje Dim2.
                                                                                     
                                                                                     
-## 3.6 Gráfico 6: Individuos - PCA (Coloreado por cos2) 
+## Gráfico 6: Individuos - PCA (Coloreado por cos2) 
   
    La coloración de cada punto individual sirve como un indicador visual de la "fidelidad" o calidad de su representación en este plano reducido, determinada por el valor de su cos2.
                                                                                     Un valor de cos2 elevado, manifestado por el color naranja brillante (#FC4E07), denota que una alta proporción de la variabilidad de un individuo se explica por Dim1 y Dim2. Esto significa que la posición de estos individuos en el gráfico 2D es una representación altamente confiable de su ubicación en el espacio multidimensional original. Por el contrario, los puntos en morado oscuro (#322899) tienen un cos2 intermedio, sugiriendo una representación moderada, mientras que los individuos en verde azulado/cian (#00AFBB), con un bajo cos2, indican que su proyección en este plano distorsiona significativamente su verdadera posición; una mayor parte de su información se distribuye en dimensiones posteriores, no visibles aquí.
@@ -351,22 +350,16 @@ La interpretación del color, basada en la leyenda del gráfico y la corresponde
                                                                                           - El Cuadrante IV (Dim1+, Dim2-) exhibe una alta concentración de puntos en naranja brillante (#FC4E07), lo que implica que estos individuos están muy bien caracterizados por una fuerte asociación positiva con Dim1 y una asociación negativa con Dim2. Su agrupación en esta zona sugiere un "fenotipo" común fuertemente impulsado por estas dos dimensiones.
                                                                                             
                                                                                             - Los Cuadrantes II (Dim1-, Dim2+) y III (Dim1-, Dim2-) albergan predominantemente a los individuos en morado oscuro (#322899) y verde azulado/cian (#00AFBB). Su ubicación en estas regiones indica una asociación negativa con Dim1, ya sea con Dim2 positiva o negativa, respectivamente. La menor saturación del color en estos cuadrantes sirve como una señal visual de que la interpretación de sus patrones de perfil en este plano 2D es menos robusta, y que una parte significativa de su variabilidad inherente permanece sin capturar por estos dos componentes.
-                                                                                              
-                                                                                              
-                                                                                              
-                                                                                                                                           ## 3.7  Gráfico 7: Individuos - PCA (Tamaño controlado por cos2) 
+
+## Gráfico 7: Individuos - PCA (Tamaño controlado por cos2) 
                                                                                               
   Representación de individuos, donde el tamaño de cada punto se utiliza como una medida directa de la "confianza" o validez de la proyección de un individuo en el plano bidimensional de Dim1 y Dim2. El color de relleno uniforme en morado oscuro (#322899) permite que el tamaño sea el único atributo visual que guía la interpretación de la calidad de representación.
   
  La premisa fundamental de esta visualización es que un punto de mayor tamaño se correlaciona directamente con un cos2 más alto. En esencia, este gráfico actúa como un "mapa de confianza" de los individuos: cuanto más grande es el punto, mayor es la certeza de que su ubicación en este plano bidimensional refleja fielmente su perfil en el espacio original de variables. Los puntos más pequeños, por el contrario, representan individuos cuya proyección es una simplificación más agresiva de su complejidad multidimensional.
                                                                                                 Esta estrategia visual es particularmente efectiva para identificar rápidamente los "anclajes" o los patrones más robustos dentro del conjunto de datos. La observación directa confirma la coherencia con la información sobre cos2 del Gráfico 6: los individuos situados predominantemente en el lado derecho del gráfico (valores positivos de Dim1) tienden a ser visiblemente más grandes. Esto sugiere que las principales fuentes de variación capturadas por Dim1 están dominadas por individuos que son excepcionalmente bien representados en este plano. Estos puntos grandes, al ser los que mejor se ajustan a las dos primeras dimensiones, son los que más contribuyen a definir la estructura principal del conjunto de datos.
                                                                                                 Por otro lado, la disminución progresiva del tamaño de los puntos, especialmente para individuos como 32, 57, 58, y 40 (ubicados en el lado izquierdo y central), sirve como una advertencia visual de que su representación en este plano es de menor calidad. Estos individuos, al ser más pequeños, indican que una parte sustancial de su variabilidad se extiende más allá de los dos primeros componentes. Consecuentemente, sus posiciones en este gráfico 2D deben interpretarse con mayor cautela, ya que no reflejan completamente sus perfiles multivariados. Este gráfico, por lo tanto, funciona como un mapa de la contribución informativa de cada individuo a la estructura bidimensional del PCA.
-                                                                                                
-                                                                                                
-                                                                                                
-                                                                                                
-                                                                                                
-## 3.8 Gráfico 8: PCA - Biplot 
+
+## Gráfico 8: PCA - Biplot 
                                                                                                 
  Las variables se representan mediante flechas en color azul (#1A6ADB), emanando del origen, mientras que los individuos se denotan por puntos en naranja brillante (#FC4E07). Esta superposición facilita la comprensión de cómo los patrones de las variables se manifiestan en los perfiles de los individuos.
                                                                                                   Caracterización de perfiles en cuadrantes:
@@ -379,10 +372,7 @@ La interpretación del color, basada en la leyenda del gráfico y la corresponde
                                                                                                   
                                                                                                   - Cuadrante Inferior Derecho (Dim1+ y Dim2-): Los individuos aquí (e.g., 37, 23, 30) exhiben una combinación de altos valores en Dim1 y bajos valores en Dim2. Variables como AQ_ARG1, AQ_IL10, y AQ_SLC2A4, que se extienden hacia esta región, son fundamentales para la caracterización de estos perfiles. Esto indica que estos individuos tienen atributos fuertemente definidos por los factores que impulsan el Dim1 positivo y una ausencia o baja expresión de los factores del Dim2 positivo, lo que los diferencia claramente de los grupos en otros cuadrantes.
                                                                                                   
-                                                                                      
-
-Unifique los dos codigos el mio y el tuyo
-                                                                                                  
+                                                
                                                                                                   
 ```{r}
 # Escalar los datos de expresión génica
@@ -514,10 +504,10 @@ theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5))
 cargas_pca <- as.data.frame(pca_result$rotation[, 1:2]) # Solo PC1 y PC2
 cargas_pca
 ```
-## Tablas Descriptivas de datos sin transformar
+# Tablas Descriptivas de datos sin transformar
 
 
-## Tablas Descriptivas de PCA, en terciles (ajustable)
+# Tablas Descriptivas de PCA, en terciles (ajustable)
 
 
 ```{r Tabla descriptiva PCA gt_summary, message=FALSE, warning=FALSE, out.width="100%", dpi=300, results='asis'}
@@ -593,7 +583,7 @@ generar_tabla_pc_completa <- function(i, umbral_cientifico = 0.001) {
           }
         )
       ) %>%
-      modify_header(label ~ "**Variable**") %>%
+      modify_header(label ~ "**Gen**") %>%
       modify_spanning_header(
         c("stat_1", "stat_2", "stat_3") ~ paste0("**Componente Principal ", i, "**")
       ) %>%
@@ -610,7 +600,7 @@ generar_tabla_pc_completa <- function(i, umbral_cientifico = 0.001) {
 for(i in 1:n.pc) {
   tabla <- generar_tabla_pc_completa(i, umbral_cientifico = 0.001)
   if(!is.null(tabla)) {
-    cat("\n\n### Componente Principal", i, "\n\n")
+    cat("\n\n## Componente Principal", i, "\n\n")
     print(tabla)
     cat("\n\n")
   }
