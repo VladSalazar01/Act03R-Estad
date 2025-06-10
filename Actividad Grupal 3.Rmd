@@ -55,7 +55,7 @@ library(gt)
 ```
 
 
-# 1 Abrir, explorar y preprocesar la base de datos:
+# Abrir, explorar y preprocesar la base de datos:
 
 ```{r Procesar datos}
 
@@ -125,8 +125,11 @@ tabla_gt
 
 
 # Aplicar el PCA
-```{r PCA}
 
+
+## Interpretación de la Tabla PCA Componentes y R (Valores Propios y Varianza Explicada)
+
+```{r PCA y tabla varianza}
 #Escalar los datos de expresion genica
 
 genes_scaled <- scale(genes)
@@ -142,6 +145,20 @@ library(factoextra)
 eigenvalues <- get_eigenvalue(pca_result)
 eigenvalues
 
+
+```
+
+ Esta tabla muestra los resultados del Análisis de Componentes Principales (PCA), centrándose en los valores propios (eigenvalues) y la proporción de varianza que explica cada componente principal. Dim.1 presenta el valor propio más elevado (24.14905) y explica una considerable porción de la varianza total, específicamente el 52.49793%.
+
+
+ Los componentes subsiguientes, como Dim.2, Dim.3, Dim.4 y Dim.5, también contribuyen significativamente a la varianza explicada, con valores propios de 2.994348, 2.435760, 1.972375 y 1.708195, respectivamente. Sus contribuciones individuales a la varianza son 6.509452%, 5.295130%, 4.287772% y 3.713468%. La columna cumulative.variance.percent es crucial, ya que ilustra la acumulación de la varianza explicada a medida que se suman más componentes. Se observa que con solo los cinco primeros componentes (Dim.1 a Dim.5), se logra explicar un 72.30375% de la varianza total. Este es un criterio comúnmente utilizado para determinar el número óptimo de componentes a retener, sugiriendo que estos cinco componentes son suficientes para representar la mayor parte de la estructura de los datos originales.
+
+
+A partir de Dim.6 y las dimensiones posteriores, la contribución individual a la varianza disminuye progresivamente, aunque la varianza acumulada sigue aumentando hasta alcanzar el 100% con la Dim.46. La Dim.46 presenta un valor propio extremadamente bajo (1.084881e-16), lo que indica que explica una porción mínima de la varianza y su inclusión puede no ser necesaria para la interpretación práctica del modelo.
+
+
+## Interpretación de la Tabla 2: Componentes de las Cargas (Varianza Explicada en Porcentaje)
+```{r PCA}
 #Extraer las varianzas de los componenetes
 varianzas <- pca_result$sdev^2
 
@@ -167,6 +184,26 @@ tabla_varianza
 n.pc <- min(which(varianza_acumulada > 0.7 ))
 paste("Se necesita", n.pc, "Componentes para explicar el 70% de la varianza")
 
+```
+
+
+ El Componente 1 es el más dominante, explicando el 52.50% de la varianza total.
+ 
+ El Componente 2 añade otro 6.51%, llevando la varianza acumulada al 59.01%.
+
+
+ Al llegar al Componente 5, la varianza acumulada alcanza el 72.30%. Esto reitera el punto de que los primeros cinco componentes capturan la mayor parte de la información relevante del conjunto de datos.
+
+
+
+ La tabla continúa listando las contribuciones de cada componente hasta el Componente 46, donde la varianza acumulada llega al 100%. Los componentes con números más altos (Componente 45 y Componente 46) explican una proporción insignificante de la varianza (0.00%), lo que sugiere que estos componentes finales representan ruido o variaciones mínimas que no aportan información significativa a la estructura de los datos.
+
+
+
+
+
+## Interpretación de la Componentes principales
+```{r PCAinter}
 fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 40))
 
 #Extraer resultados de los individuos
@@ -177,6 +214,23 @@ head(ind$coord)
 var <- get_pca_var(pca_result)
 head(var$coord)
 
+```
+
+ Se muestra una tabla de cargas de los componentes principales (o scores de los individuos en las dimensiones PCA, dada la disposición), que detalla cómo las variables originales contribuyen a cada una de las dimensiones extraídas en el Análisis de Componentes Principales. En la parte superior, se reitera que "Se necesita 5 Componentes para explicar el 70 % de la varianza", lo cual es un criterio fundamental para la selección de las dimensiones más relevantes del PCA. La tabla misma presenta una matriz de valores numéricos para múltiples dimensiones (Dim.1 a Dim.46), organizadas en filas y columnas.
+
+
+
+ Estos valores, conocidos como cargas o loadings, representan la correlación entre cada variable original (o en este caso, posiblemente las puntuaciones de los individuos en las dimensiones) y cada componente principal. Un valor más alto, ya sea positivo o negativo, indica una mayor contribución de esa variable a la definición de la dimensión correspondiente. Por ejemplo, en la primera fila, para la Dim.1, se observa un valor de 5.089935, lo que sugiere una fuerte asociación. Los signos de las cargas (- o +) indican la dirección de la relación; por ejemplo, si dos variables tienen cargas positivas altas en el mismo componente, se mueven en la misma dirección a lo largo de esa dimensión principal. Por el contrario, cargas con signos opuestos en el mismo componente indican una relación inversa.
+
+
+
+ La tabla desglosa estos valores a lo largo de un gran número de dimensiones, aunque el mensaje inicial enfatiza que solo los primeros cinco componentes son cruciales para capturar la mayor parte de la variabilidad de los datos. Esta información es vital para comprender la estructura latente del conjunto de datos y para interpretar el significado de cada componente principal en términos de las variables originales que lo definen. A medida que se avanza en las dimensiones de mayor número (por ejemplo, Dim.45, Dim.46), se espera que las cargas sean menores, reflejando su menor contribución a la varianza total, lo que es coherente con el principio del PCA de concentrar la información en los primeros componentes. 
+
+
+
+
+## Interpretación de gráficos de PCA
+```{r grafsPCA}
 #Visualizar importancia de cada variable en PC1 y PC2
 fviz_cos2(pca_result, choice = "var", axes = 1:2)
 #Visualizar variabls mas importantes en PC1
@@ -186,7 +240,7 @@ fviz_contrib(pca_result, choice = "var", axes = 1,top = 10 )
 x_label <- paste0("PC1 (", round(varianza_explicada[1] * 100, 2), "%)")
 y_label <- paste0("PC2 (", round(varianza_explicada[2] * 100, 2), "%)")
 
-#Genrar grafico de dispersion de los dos primeros componentes
+#Generar grafico de dispersion de los dos primeros componentes
 
 ggplot(pca_df, aes(x=PC1, y=PC2))+
   geom_point(size = 3, color = "steelblue") +
@@ -196,95 +250,70 @@ ggplot(pca_df, aes(x=PC1, y=PC2))+
         panel.background = element_rect(fill = "gray95"),
         plot.title = element_text(hjust = 0.5))
 
+```
+
+ En el "Scree plot" Se observa una caída pronunciada en la varianza explicada después de las primeras dimensiones, lo que valida la decisión de retener un número limitado de componentes (en este caso, se indica que se necesitan 5 componentes para explicar el 70% de la varianza). 
+
+
+ El gráfico "Cos2 of variables to Dim-1-2" muestra las barras más altas indican que la variable está mejor representada por esos componentes, lo que significa que su variabilidad se explica bien en el espacio bidimensional de PC1 y PC2. Este gráfico ayuda a identificar qué genes son capturados más eficazmente por los principales ejes de variación.
+
+
+ El gráfico "Contribution of variables to Dim-1" las barras más altas indican una mayor contribución porcentual.
+
+
+
+
+ El "PCA - Expresión Genética" (Gráfico de Dispersión PC1 vs. PC2. El eje X representa el Componente Principal 1 (PC1), que explica el 52.5% de la varianza total, mientras que el eje Y representa el Componente Principal 2 (PC2), que explica el 6.51% de la varianza. Cada punto en el gráfico corresponde a un individuo, y la proximidad entre los puntos sugiere similitudes en su patrón de expresión génica. La dispersión de los puntos indica la heterogeneidad de los individuos a lo largo de estas dos dimensiones principales. Un análisis de la agrupación o separación de los puntos puede revelar patrones o clústeres naturales dentro de la población estudiada basados en su perfil de expresión génica.
+
+
+
+## Interpretación de las Cargas de los Componentes Principales en Expresión Génica
+```{r PCAcargas}
+
+
 #Carga de los dos primeros componentes
 cargas<- as.data.frame(pca_result$rotation[, 1:3])
 cargas
-
-# Visualizar el biplot de individuos y variables
-fviz_pca_biplot(pca_result,
-                geom.ind = "point",
-                col.ind = "blue",
-                col.var = "red",
-                repel = TRUE,
-                title = "Biplot PCA: Individuos y Variables")
-
 ```
 
-# Crear gráficos descriptivos de los componentes principales:
-
-```{r fig.width=12, fig.height=8}
-# Explicación de gráficos en PCA
-
-# 1. Extraer los resultados de las variables 
-var_results <- get_pca_var(pca_result) 
-# var_results$coord          # Coordenadas 
-# var_results$cos2           # Calidad de representación (cos2) 
-# var_results$contrib        # Contribuciones 
-
-# 2. Visualizar el gráfico de correlación variable 
-# Muestra las relaciones entre todas las variables
-# Las variables correlacionadas positivamente se agrupan 
-# Las variables correlacionadas negativamente se colocan en lados opuestos 
-# La distancia entre las variables y el origen mide la calidad de las variables 
-fviz_pca_var(pca_result, col.var = "black") 
-
-# Visualizar el gráfico de correlación variable coloreado por cos2 
-# Las variables con valores bajos de cos2 se colorearán en ”#00AFBB" 
-# Las variables con valores medios de cos2 se colorearán en ”#322899" 
-# Las variables con valores altos de cos2 se colorearán en “#FC4E07” 
-fviz_pca_var(pca_result, col.var = "cos2",
-             gradient.cols = c("#00AFBB", "#322899", "#FC4E07"), 
-             repel = TRUE) # Evitar el overlapping 
-
-
-# 3. Visualizar la representación de cada variable en las dimensiones 1 y 2 (cos2) 
-# Un cos2 alto = buena representación de la variable en el componente principal 
-# Un cos2 bajo = la variable no está perfectamente representada por los PC 
-fviz_cos2(pca_result, choice = "var", axes = 1:2) 
-
-# 4. Visualizar la importancia (contribución) de cada variable por dimensiones 
-# Contribución a la Dimensión 1
-fviz_contrib(pca_result, choice = "var", axes = 1, top = 10) 
-
-# Contribución a la Dimensión 2
-fviz_contrib(pca_result, choice = "var", axes = 2, top = 10) 
+ Análisis del Componente Principal 1 (PC1): Este componente es el que explica la mayor proporción de la varianza en los datos (como se ve en el scree plot y la tabla de varianza, PC1 explica el 52.5% de la varianza). Los genes con cargas positivas altas en PC1, como AQ_ADIPOQ (0.03559292), AQ_CHKA (0.11186574), AQ_FASN (0.17823832), AQ_G6PD (0.17086893), AQ_LDHA (0.16724750), AQ_LIF (0.11624129), AQ_MAPK1 (0.17841182), AQ_PPARG (0.14804590), AQ_PTAFR (0.18128806), AQ_PTGS2 (0.15420214), AQ_SOD1 (0.15950944), AQ_TLR3 (0.15233563), AQ_TLR4 (0.15473983) y AQ_TNF (0.15997033), tienden a co-variar positivamente a lo largo de esta dimensión. Por otro lado, genes con cargas negativas destacadas, como AQ_ALOX5 (-0.16255105), AQ_BMP2 (-0.12301246), AQ_CCL5 (-0.18409559), AQ_CCR5 (-0.17400603), AQ_CD274 (-0.16300107), AQ_CD36 (-0.16367325), AQ_CXCR1 (-0.14146607), AQ_FOXO3 (-0.12058540), AQ_FOXP3 (-0.14330657), AQ_GPD2 (-0.15474529), AQ_IFNG (-0.16213380), AQ_IL1B (-0.15168382), AQ_IL6 (-0.12169474), AQ_IRS1 (-0.13687088), AQ_JAK1 (-0.19060528), AQ_JAK3 (-0.13548046), AQ_NFE2L2 (-0.18169514), AQ_NFKB1 (-0.17846799), AQ_NLRP3 (-0.17460841), AQ_STAT3 (-0.15735784) y AQ_TGFB1 (-0.17997185), se asocian inversamente con la dirección de PC1. Esto demuestra que PC1 podría representar un eje biológico fundamental donde algunos genes están activados mientras otros están reprimidos.
 
 
 
-# 5. Visualizar a los individuos
-
-# Colorear a los individuos por sus valores cos2
-# Los individuos con valores bajos de cos2 se colorearán en ”#00AFBB" 
-# Los individuos con valores medios de cos2 se colorearán en ”#322899" 
-# Los individuos con valores altos de cos2 se colorearán en “#FC4E07” 
-# Los individuos similares se agrupan 
-fviz_pca_ind(pca_result, col.ind = "cos2", 
-             gradient.cols = c("#00AFBB", "#322899", "#FC4E07"), 
-             repel = TRUE) 
-
-# Visualizar individuos controlando tamaño y forma por cos2 
-fviz_pca_ind(pca_result, pointsize = "cos2", 
-             pointshape = 21, fill = "#322899", 
-             repel = TRUE) 
 
 
-# 6. Visualizar el biplot de individuos y variables 
-# Dim1 - y Dim2 - : individuos y variables con valores bajos en ambas dimensiones. 
-# Podría indicar que los individuos y las variables están negativamente relacionados en ambas dimensiones. 
-# Dim1 + y Dim2 + : individuos y variables con valores altos en ambas dimensiones.
-# Puede interpretarse como una relación positiva en ambas dimensiones. 
-fviz_pca_biplot(pca_result, repel = TRUE,
-                col.var = "#1A6ADB", # Variables color 
-                col.ind = "#FC4E07"  # Individuals color 
-)
-```
+ Análisis del Componente Principal 2 (PC2): Este componente captura una porción adicional de la varianza (6.51%). Los genes con cargas positivas altas en PC2, como AQ_ARG1 (0.372618437), AQ_CCL2 (0.339326073), AQ_CHKA (0.127600847), AQ_CPT1A (0.158311988), AQ_FOXP3 (0.264382460), AQ_LIF (0.308985224), AQ_PDCD1 (0.119717303), AQ_PPARG (0.165699818) y AQ_SREBF1 (0.107075498), son los que más influyen en esta segunda dimensión. En contraste, genes con cargas negativas notables, como AQ_ALOX5 (-0.089225139), AQ_BMP2 (-0.097971949), AQ_CD274 (-0.110304048), AQ_CXCR1 (-0.188080571), AQ_FOXO3 (-0.080478778), AQ_IL10 (-0.271610966), AQ_IL1B (-0.166871826), AQ_JAK3 (-0.168272100), AQ_PTAFR (-0.150460426), AQ_PTGS2 (-0.056698243), AQ_SLC2A4 (-0.252272579), AQ_TLR3 (-0.050714732), AQ_TLR4 (-0.175053773) y AQ_TNF (-0.059698483), se relacionan inversamente con PC2. Este componente podría representar un segundo proceso biológico distinto, ortogonal al primero, que modula la expresión génica.
+
+
+
+
+ Análisis del Componente Principal 3 (PC3): Aunque explica una menor proporción de la varianza (5.3%), el PC3 aún revela patrones importantes. Genes con cargas positivas altas, como AQ_ADIPOQ (0.201198039), AQ_ARG1 (0.087433070), AQ_CHKA (0.279307152), AQ_CPT1A (0.106298467), AQ_CSF2 (0.048731341), AQ_FOXO3 (0.283184488), AQ_G6PD (0.184221180), AQ_GPD2 (0.078964787), AQ_GPX1 (0.145844909), AQ_LIF (0.074814051), AQ_MAPK1 (0.099035518), AQ_NFE2L2 (0.022999406), AQ_NFKB1 (0.029308012), AQ_NOS2 (0.274287868), AQ_PDCD1 (0.044849109), AQ_PPARG (0.046958077), AQ_PTGS2 (0.155741087), AQ_SLC2A4 (0.337825108), AQ_SOD1 (0.076929701), AQ_TLR3 (0.020245349) y AQ_TNF (0.150883824), son los que más influyen en esta dimensión. Los genes con cargas negativas incluyen AQ_ALOX5 (-0.019002731), AQ_CCL2 (-0.147767075), AQ_CD274 (-0.026673658), AQ_CXCR1 (-0.150722020), AQ_FOXP3 (-0.144957082), AQ_IFNG (-0.006872480), AQ_IL1B (-0.212922641), AQ_IL6 (-0.047038618), AQ_JAK1 (-0.012583944), AQ_JAK3 (-0.314909476), AQ_NLRP3 (-0.097641535), AQ_STAT3 (-0.257349674), AQ_TGFB1 (-0.086500384) y AQ_TLR4 (-0.179361893). PC3, por lo tanto, representa otro modo de variación en la expresión génica, posiblemente relacionado con procesos biológicos que se distinguen de los capturados por PC1 y PC2.
+ 
+ 
+
+
+
+# Gráficos descriptivos de los componentes principales:
 
 ## Gráfico 1: Variables - PCA (Fechas negras) 
+```{r fig3.1, fig.height=8}
+# Extraer resultados de las variables (coordenadas, cos2, contribuciones)
+var_results <- get_pca_var(pca_result)
+
+# 1. Gráfico de Correlación de Variables
+# Muestra las relaciones entre todas las variables. Las variables correlacionadas positivamente se agrupan,
+# las negativamente correlacionadas se colocan en lados opuestos.
+# La distancia entre las variables y el origen mide la calidad de su representación.
+fviz_pca_var(pca_result, col.var = "black") +
+labs(title = "Círculo de Correlación de Variables (Todos los genes)") +
+theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5))
+```
 
 - Representación de Variables: Cada flecha representa una variable. La dirección y longitud de la flecha indican cómo cada variable contribuye a los dos componentes principales.
 - Correlaciones entre Variables: 
   o	Las variables con flechas que apuntan en direcciones similares (ángulo pequeño entre ellas) están positivamente correlacionadas. Por ejemplo, AQ_CCL2, AQ_LIF y AQ_FOXP3 están agrupadas, sugiriendo correlaciones positivas entre ellas. De manera similar, el gran grupo de variables en el cuadrante izquierdo (e.g., AQ_FASN, AQ_SREBF1, AQ_JAK1, etc.) están positivamente correlacionadas entre sí.
-o	Las variables con flechas que apuntan en direcciones opuestas (ángulo de aproximadamente 180 grados) están negativamente correlacionadas. Por ejemplo, AQ_ADIPOQ (fuertemente en Dim1+) está negativamente correlacionada con el grupo de variables en el lado izquierdo de Dim1 (Dim1-).
+  
+  Las variables con flechas que apuntan en direcciones opuestas (ángulo de aproximadamente 180 grados) están negativamente correlacionadas. Por ejemplo, AQ_ADIPOQ (fuertemente en Dim1+) está negativamente correlacionada con el grupo de variables en el lado izquierdo de Dim1 (Dim1-).
 o	Las variables con flechas que son aproximadamente perpendiculares (ángulo de 90 grados) tienen poca o ninguna correlación lineal entre ellas.
 
 - Calidad de Representación: La distancia de una variable al origen (el centro del gráfico) mide cuán bien está representada la variable por los dos primeros componentes principales. Variables más alejadas del origen (e.g., AQ_ADIPOQ, AQ_NOX5, AQ_ARG1, AQ_IL10, y muchas en el grupo izquierdo como AQ_JAK1) están mejor representadas en este plano 2D que aquellas más cercanas al origen. 
@@ -298,7 +327,18 @@ o	Variables como AQ_ARG1, AQ_IL10, AQ_SLC2A4 contribuyen a Dim2 en la dirección
 
 ## Gráfico 2: Variables - PCA (Coloreado por cos2) 
 
-La interpretación del color, basada en la leyenda del gráfico y la correspondencia con los códigos hexadecimales proporcionados (#00AFBB para cos2 bajo, #322899 para cos2 medio, y #FC4E07 para cos2 alto), es la siguiente:
+```{r fig3.2, fig.height=8}
+# Gráfico de Correlación de Variables coloreado por cos2 (calidad de representación)
+# Los colores indican la calidad de representación de la variable en el plano.
+fviz_pca_var(pca_result, col.var = "cos2",
+gradient.cols = c("#00AFBB", "#322899", "#FC4E07"),
+repel = TRUE) + # Evitar el solapamiento de etiquetas
+labs(title = "Círculo de Correlación de Variables coloreado por cos2",
+subtitle = "Calidad de representación de la variable en el PC") +
+theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) 
+```
+
+ La interpretación del color, basada en la leyenda del gráfico y la correspondencia con los códigos hexadecimales proporcionados (#00AFBB para cos2 bajo, #322899 para cos2 medio, y #FC4E07 para cos2 alto), es la siguiente:
   
   - Variables con cos2 alto (coloreadas en naranja-rojizo, #FC4E07): Estas variables están muy bien representadas por los dos primeros componentes principales (Dim1 y Dim2), con valores de cos2 iguales o superiores a 0.75 según la leyenda. En el gráfico, se observa que la mayoría de las variables situadas en el lado izquierdo del círculo, como AQ_CCR5, AQ_SREBF1, AQ_JAK1, AQ_LDHA, AQ_NLRP3 y AQ_CCL5, presentan esta coloración. Su posición alejada del origen, combinada con este color, indica que Dim1 y Dim2 capturan una gran parte de su varianza total.
                              
@@ -310,14 +350,34 @@ La interpretación del color, basada en la leyenda del gráfico y la corresponde
                                                                                     
                                                                                     
 ## Gráfico 3: Cos2 de variables a Dim-1-2 
+
+```{r fig3.3, fig.height=8}
+# 2. Calidad de Representación de cada variable (cos2) en las dimensiones 1 y 2
+# Un cos2 alto indica buena representación de la variable en el componente principal,
+# mientras que un cos2 bajo sugiere que la variable no está bien representada por los PCs.
+fviz_cos2(pca_result, choice = "var", axes = 1:2) +
+labs(title = "Calidad de Representación (cos2) de Variables en PC1 y PC2",
+) +
+theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+
+```
                                                                                     
- Este diagrama de barras muestra la calidad de representación (cos2) de cada variable, específicamente para el plano formado por Dim1 y Dim2. Un valor de cos2 alto significa que la variable está bien representada por estos dos componentes principales. 
-                                                                                    - Variables Mejor Representadas: Variables como AQ_JAK1, AQ_PTAFR, AQ_SREBF1, AQ_CCL5, AQ_MAPK1 y AQ_CCR5 muestran los valores de cos2 más altos, indicando que una gran proporción de su varianza es explicada por Dim1 y Dim2.
-                                                                                    
-                                                                                    - Variables Peor Representadas: En contraste, variables como AQ_SLC2A4, AQ_ADIPOQ y AQ_NOX5 muestran los valores de cos2 más bajos en este gráfico. Esto demuestra que, según esta métrica particular (suma de cos2 en Dim1 y Dim2), estas variables no están tan bien representadas por los dos primeros componentes principales combinados como otras variables. Esto puede parecer contradictorio con su posición prominente en el Gráfico 2, especialmente para AQ_ADIPOQ y AQ_NOX5. Una posible explicación es que, aunque estas variables puedan tener una fuerte proyección en una de las dimensiones (principalmente Dim1), su varianza podría no estar tan concentrada exclusivamente en el plano Dim1-Dim2 en comparación con variables como AQ_JAK1. Es decir, otras dimensiones podrían ser importantes para capturar completamente la varianza de AQ_ADIPOQ y AQ_NOX5, o su representación podría estar fuertemente dominada por una sola de estas dos dimensiones.
+ Este diagrama de barras muestra la calidad de representación (cos2) de cada variable, específicamente para el plano formado por Dim1 y Dim2. Un valor de cos2 alto significa que la variable está bien representada por estos dos componentes principales.
+ 
+ - Variables Mejor Representadas: Variables como AQ_JAK1, AQ_PTAFR, AQ_SREBF1, AQ_CCL5, AQ_MAPK1 y AQ_CCR5 muestran los valores de cos2 más altos, indicando que una gran proporción de su varianza es explicada por Dim1 y Dim2.     
+ 
+ - Variables Peor Representadas: En contraste, variables como AQ_SLC2A4, AQ_ADIPOQ y AQ_NOX5 muestran los valores de cos2 más bajos en este gráfico. Esto demuestra que, según esta métrica particular (suma de cos2 en Dim1 y Dim2), estas variables no están tan bien representadas por los dos primeros componentes principales combinados como otras variables. Esto puede parecer contradictorio con su posición prominente en el Gráfico 2, especialmente para AQ_ADIPOQ y AQ_NOX5. Una posible explicación es que, aunque estas variables puedan tener una fuerte proyección en una de las dimensiones (principalmente Dim1), su varianza podría no estar tan concentrada exclusivamente en el plano Dim1-Dim2 en comparación con variables como AQ_JAK1. Es decir, otras dimensiones podrían ser importantes para capturar completamente la varianza de AQ_ADIPOQ y AQ_NOX5, o su representación podría estar fuertemente dominada por una sola de estas dos dimensiones.
                                                                                     
                                                                                     
 ## Gráfico 4: Contribución de las variables a Dim-1 
+
+```{r fig3.4, fig.height=8}
+# 3. Contribución de las variables a cada dimensión (Top 10)
+# Muestra qué variables contribuyen más a la formación de cada componente principal.
+fviz_contrib(pca_result, choice = "var", axes = 1, top = 10) +
+labs(title = "Top 10 Genes Contribuyentes a la Dimensión 1") +
+theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5))
+```
                                                                                     
   La línea roja discontinua representa el nivel de contribución esperado si todas las variables contribuyeran por igual.
                                                                                     
@@ -328,6 +388,11 @@ La interpretación del color, basada en la leyenda del gráfico y la corresponde
                                                                                     
                                                                                     
 ## Gráfico 5: Contribución de las variables a Dim-2 
+```{r fig3.5, fig.height=8}
+# Contribución a la Dimensión 2
+fviz_contrib(pca_result, choice = "var", axes = 2, top = 10)
+
+```
                                                                                     
   Similar al gráfico anterior, este muestra la contribución porcentual de las 10 variables principales a la Dimensión 2 (Dim2). Dim2 explica el 6.5% de la varianza total.
                                                                                     
@@ -337,126 +402,7 @@ La interpretación del color, basada en la leyenda del gráfico y la corresponde
                                                                                     
                                                                                     
 ## Gráfico 6: Individuos - PCA (Coloreado por cos2) 
-  
-   La coloración de cada punto individual sirve como un indicador visual de la "fidelidad" o calidad de su representación en este plano reducido, determinada por el valor de su cos2.
-                                                                                    Un valor de cos2 elevado, manifestado por el color naranja brillante (#FC4E07), denota que una alta proporción de la variabilidad de un individuo se explica por Dim1 y Dim2. Esto significa que la posición de estos individuos en el gráfico 2D es una representación altamente confiable de su ubicación en el espacio multidimensional original. Por el contrario, los puntos en morado oscuro (#322899) tienen un cos2 intermedio, sugiriendo una representación moderada, mientras que los individuos en verde azulado/cian (#00AFBB), con un bajo cos2, indican que su proyección en este plano distorsiona significativamente su verdadera posición; una mayor parte de su información se distribuye en dimensiones posteriores, no visibles aquí.
-                                                                                      Desde una perspectiva de la disipación de la variabilidad, se observa que un grupo principal de individuos, consistentemente en naranja brillante (#FC4E07), se concentra prominentemente en la región derecha del gráfico (Dim1 positivo), abarcando un rango de valores de Dim2 (como los individuos 13, 49, 55, 56). La densidad de puntos naranja brillante en esta área subraya que esta cohorte de individuos posee perfiles de variables que son fuertemente y coherentemente capturados por los dos componentes principales dominantes. Su cercanía espacial implica una alta similitud en sus características subyacentes, tal como las capturan estas dos dimensiones principales.
-                                                                                        En contraste, los individuos coloreados en morado oscuro (#322899) y, más marcadamente, en verde azulado/cian (#00AFBB) (ej., 32, 57, 59, 58, 40, 30), se dispersan más ampliamente, particularmente hacia el lado izquierdo (Dim1 negativo). La calidad de representación decreciente (de morado a verde azulado/cian) para estos individuos sugiere que su variabilidad intrínseca no está adecuadamente resumida por Dim1 y Dim2. Para los individuos en verde azulado/cian, la interpretación de sus relaciones basadas únicamente en este plano es limitada; su verdadera proximidad o distinción de otros individuos probablemente requiere la consideración de dimensiones adicionales del espacio PCA. Esta dispersión indica perfiles menos convencionales que no se alinean tan estrechamente con los ejes de variación principales.
-                                                                                          
-  Al considerar los cuadrantes, se observa lo siguiente:
-                                                                                            
- - El Cuadrante I (Dim1+, Dim2+) contiene individuos en su mayoría bien representados, con perfiles que se asocian positivamente con ambos componentes.
-                                                                                          
-                                                                                          - El Cuadrante IV (Dim1+, Dim2-) exhibe una alta concentración de puntos en naranja brillante (#FC4E07), lo que implica que estos individuos están muy bien caracterizados por una fuerte asociación positiva con Dim1 y una asociación negativa con Dim2. Su agrupación en esta zona sugiere un "fenotipo" común fuertemente impulsado por estas dos dimensiones.
-                                                                                            
-                                                                                            - Los Cuadrantes II (Dim1-, Dim2+) y III (Dim1-, Dim2-) albergan predominantemente a los individuos en morado oscuro (#322899) y verde azulado/cian (#00AFBB). Su ubicación en estas regiones indica una asociación negativa con Dim1, ya sea con Dim2 positiva o negativa, respectivamente. La menor saturación del color en estos cuadrantes sirve como una señal visual de que la interpretación de sus patrones de perfil en este plano 2D es menos robusta, y que una parte significativa de su variabilidad inherente permanece sin capturar por estos dos componentes.
-
-## Gráfico 7: Individuos - PCA (Tamaño controlado por cos2) 
-                                                                                              
-  Representación de individuos, donde el tamaño de cada punto se utiliza como una medida directa de la "confianza" o validez de la proyección de un individuo en el plano bidimensional de Dim1 y Dim2. El color de relleno uniforme en morado oscuro (#322899) permite que el tamaño sea el único atributo visual que guía la interpretación de la calidad de representación.
-  
- La premisa fundamental de esta visualización es que un punto de mayor tamaño se correlaciona directamente con un cos2 más alto. En esencia, este gráfico actúa como un "mapa de confianza" de los individuos: cuanto más grande es el punto, mayor es la certeza de que su ubicación en este plano bidimensional refleja fielmente su perfil en el espacio original de variables. Los puntos más pequeños, por el contrario, representan individuos cuya proyección es una simplificación más agresiva de su complejidad multidimensional.
-                                                                                                Esta estrategia visual es particularmente efectiva para identificar rápidamente los "anclajes" o los patrones más robustos dentro del conjunto de datos. La observación directa confirma la coherencia con la información sobre cos2 del Gráfico 6: los individuos situados predominantemente en el lado derecho del gráfico (valores positivos de Dim1) tienden a ser visiblemente más grandes. Esto sugiere que las principales fuentes de variación capturadas por Dim1 están dominadas por individuos que son excepcionalmente bien representados en este plano. Estos puntos grandes, al ser los que mejor se ajustan a las dos primeras dimensiones, son los que más contribuyen a definir la estructura principal del conjunto de datos.
-                                                                                                Por otro lado, la disminución progresiva del tamaño de los puntos, especialmente para individuos como 32, 57, 58, y 40 (ubicados en el lado izquierdo y central), sirve como una advertencia visual de que su representación en este plano es de menor calidad. Estos individuos, al ser más pequeños, indican que una parte sustancial de su variabilidad se extiende más allá de los dos primeros componentes. Consecuentemente, sus posiciones en este gráfico 2D deben interpretarse con mayor cautela, ya que no reflejan completamente sus perfiles multivariados. Este gráfico, por lo tanto, funciona como un mapa de la contribución informativa de cada individuo a la estructura bidimensional del PCA.
-
-## Gráfico 8: PCA - Biplot 
-                                                                                                
- Las variables se representan mediante flechas en color azul (#1A6ADB), emanando del origen, mientras que los individuos se denotan por puntos en naranja brillante (#FC4E07). Esta superposición facilita la comprensión de cómo los patrones de las variables se manifiestan en los perfiles de los individuos.
-                                                                                                  Caracterización de perfiles en cuadrantes:
-                                                                                                    
-- Cuadrante Superior Derecho (Dim1+ y Dim2+): Este cuadrante encapsula individuos (e.g., 13, 49, 54, 55, 56) cuyos perfiles están fuertemente impulsados por una combinación de altos valores en Dim1 y Dim2. Las variables que apuntan hacia esta región, como AQ_CHKA y AQ_CSF2, son los principales "impulsores" que definen los perfiles de estos individuos. La proximidad de individuos a estas flechas sugiere que sus características biológicas o experimentales se alinean estrechamente con estas variables. AQ_ADIPOQ y AQ_NOX5, aunque predominantemente en Dim1+, también contribuyen positivamente a esta región, caracterizando aún más los individuos en este cuadrante.
-                                                                                                  
- - Cuadrante Superior Izquierdo (Dim1- y Dim2+): Individuos como 32, 57, y 59, situados aquí, presentan perfiles caracterizados por valores bajos en Dim1 pero altos en Dim2. Las flechas de variables que se extienden hacia esta zona, como AQ_CCL2, AQ_LIF y AQ_FOXP3, son las que mejor describen a estos individuos. Su posicionamiento sugiere una asociación inversa con los factores representados por Dim1, y una asociación positiva con aquellos de Dim2, delineando un fenotipo particular para este grupo.
-                                                                                                  
-  - Cuadrante Inferior Izquierdo (Dim1- y Dim2-): Este cuadrante es notable por la densidad de variables (ej., AQ_FASN, AQ_SREBF1, AQ_JAK1, AQ_CCR5, AQ_TNF) que se proyectan fuertemente hacia la izquierda (Dim1 negativo). Esto indica que Dim1 negativo está significativamente correlacionado con una amplia gama de características. Los individuos en esta área (e.g., 58, 40, 31, 62) se caracterizan por valores relativamente bajos en ambas dimensiones o, de manera más precisa, valores más altos para las variables que apuntan hacia la izquierda y valores más bajos para las que apuntan hacia la derecha. Esto revela un segmento de la muestra con una caracterización diametralmente opuesta al grupo principal en el cuadrante IV.
-                                                                                                  
-                                                                                                  - Cuadrante Inferior Derecho (Dim1+ y Dim2-): Los individuos aquí (e.g., 37, 23, 30) exhiben una combinación de altos valores en Dim1 y bajos valores en Dim2. Variables como AQ_ARG1, AQ_IL10, y AQ_SLC2A4, que se extienden hacia esta región, son fundamentales para la caracterización de estos perfiles. Esto indica que estos individuos tienen atributos fuertemente definidos por los factores que impulsan el Dim1 positivo y una ausencia o baja expresión de los factores del Dim2 positivo, lo que los diferencia claramente de los grupos en otros cuadrantes.
-                                                                                                  
-                                                
-                                                                                                  
-```{r}
-# Escalar los datos de expresión génica
-# 'gene_expression_cols' es el dataframe de genes obtenido en la sección de preprocesamiento.
-genes_scaled <- scale(genes)
-                                                                                                  
-# Aplicar el PCA
-pca_result <- prcomp(genes_scaled, center = TRUE, scale. = TRUE)
-                                                                                                  
-# Obtener los eigenvalues (autovalores) y varianzas
-eigenvalues_pca <- get_eigenvalue(pca_result)
-varianzas <- pca_result$sdev^2
-total_varianza <- sum(varianzas)
-varianza_explicada <- varianzas / total_varianza
-varianza_acumulada <- cumsum(varianza_explicada)
-                                                                                                  
-# Mostrar tabla de varianzas
-tabla_varianza <- data.frame(
-Componente = 1:length(varianza_explicada),
-                                                                                                    Varianza_Explicada = round(varianza_explicada * 100, 2),
-                                                                                                    Varianza_Acumulada = round(varianza_acumulada * 100, 2)
-                                                                                                  )
-                                                                                                  
-tabla_varianza %>%
-gt() %>%
-tab_header(title = md("**Varianza Explicada y Acumulada por Componente Principal**")) %>%
-cols_label(
-Componente = md("**Componente**"),
-Varianza_Explicada = md("**% Varianza Explicada**"),
-Varianza_Acumulada = md("**% Varianza Acumulada**")
-) %>%
-fmt_number(columns = c(Varianza_Explicada, Varianza_Acumulada), decimals = 2, suffix = "%")
-                                                                                                  
-# Determinar cuántos componentes explican al menos el 70% de la varianza
-                                                                                                  n.pc <- min(which(varianza_acumulada > 0.7))
-                                                                                                  
-# Gráfico de Sedimentación (Scree Plot)
-fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 40)) +
-labs(title = "Gráfico de Sedimentación (Scree Plot)",
-subtitle = "Varianza Explicada por cada Componente Principal",
-x = "Componentes Principales",
-y = "% de Varianza Explicada") +
-theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
-```
-                                                                                                  
 ```{r fig.width=12, fig.height=8}
-# Extraer resultados de las variables (coordenadas, cos2, contribuciones)
-var_results <- get_pca_var(pca_result)
-
-# 1. Gráfico de Correlación de Variables
-# Muestra las relaciones entre todas las variables. Las variables correlacionadas positivamente se agrupan,
-# las negativamente correlacionadas se colocan en lados opuestos.
-# La distancia entre las variables y el origen mide la calidad de su representación.
-fviz_pca_var(pca_result, col.var = "black") +
-labs(title = "Círculo de Correlación de Variables (Todos los genes)") +
-theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5))
-
-# Gráfico de Correlación de Variables coloreado por cos2 (calidad de representación)
-# Los colores indican la calidad de representación de la variable en el plano.
-fviz_pca_var(pca_result, col.var = "cos2",
-gradient.cols = c("#00AFBB", "#322899", "#FC4E07"),
-repel = TRUE) + # Evitar el solapamiento de etiquetas
-labs(title = "Círculo de Correlación de Variables coloreado por cos2",
-subtitle = "Calidad de representación de la variable en el PC") +
-theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
-
-# 2. Calidad de Representación de cada variable (cos2) en las dimensiones 1 y 2
-# Un cos2 alto indica buena representación de la variable en el componente principal,
-# mientras que un cos2 bajo sugiere que la variable no está bien representada por los PCs.
-fviz_cos2(pca_result, choice = "var", axes = 1:2) +
-labs(title = "Calidad de Representación (cos2) de Variables en PC1 y PC2",
-) +
-theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
-
-# 3. Contribución de las variables a cada dimensión (Top 10)
-# Muestra qué variables contribuyen más a la formación de cada componente principal.
-fviz_contrib(pca_result, choice = "var", axes = 1, top = 10) +
-labs(title = "Top 10 Genes Contribuyentes a la Dimensión 1") +
-theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5))
-
-fviz_contrib(pca_result, choice = "var", axes = 2, top = 10) +
-labs(title = "Top 10 Genes Contribuyentes a la Dimensión 2") +
-theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5))
-
 # 4. Visualización de Individuos
 # Extraer resultados de los individuos
 ind_results <- get_pca_ind(pca_result)
@@ -469,7 +415,26 @@ repel = TRUE) +
 labs(title = "Visualización de Individuos coloreados por cos2",
 subtitle = "Calidad de representación de cada individuo en el PC") +
 theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+```
+  
+   La coloración de cada punto individual sirve como un indicador visual de la "fidelidad" o calidad de su representación en este plano reducido, determinada por el valor de su cos2.
+   
+ Un valor de cos2 elevado, manifestado por el color naranja brillante (#FC4E07), denota que una alta proporción de la variabilidad de un individuo se explica por Dim1 y Dim2. Esto significa que la posición de estos individuos en el gráfico 2D es una representación altamente confiable de su ubicación en el espacio multidimensional original. Por el contrario, los puntos en morado oscuro (#322899) tienen un cos2 intermedio, sugiriendo una representación moderada, mientras que los individuos en verde azulado/cian (#00AFBB), con un bajo cos2, indican que su proyección en este plano distorsiona significativamente su verdadera posición; una mayor parte de su información se distribuye en dimensiones posteriores, no visibles aquí.
+                                                                                    
+  Desde una perspectiva de la disipación de la variabilidad, se observa que un grupo principal de individuos, consistentemente en naranja brillante (#FC4E07), se concentra prominentemente en la región derecha del gráfico (Dim1 positivo), abarcando un rango de valores de Dim2 (como los individuos 13, 49, 55, 56). La densidad de puntos naranja brillante en esta área subraya que esta cohorte de individuos posee perfiles de variables que son fuertemente y coherentemente capturados por los dos componentes principales dominantes. Su cercanía espacial implica una alta similitud en sus características subyacentes, tal como las capturan estas dos dimensiones principales.
+  
+   En contraste, los individuos coloreados en morado oscuro (#322899) y, más marcadamente, en verde azulado/cian (#00AFBB) (ej., 32, 57, 59, 58, 40, 30), se dispersan más ampliamente, particularmente hacia el lado izquierdo (Dim1 negativo). La calidad de representación decreciente (de morado a verde azulado/cian) para estos individuos sugiere que su variabilidad intrínseca no está adecuadamente resumida por Dim1 y Dim2. Para los individuos en verde azulado/cian, la interpretación de sus relaciones basadas únicamente en este plano es limitada; su verdadera proximidad o distinción de otros individuos probablemente requiere la consideración de dimensiones adicionales del espacio PCA. Esta dispersión indica perfiles menos convencionales que no se alinean tan estrechamente con los ejes de variación principales.
+                                                                                          
+  Al considerar los cuadrantes, se observa lo siguiente:
+                                                                                            
+ - El Cuadrante I (Dim1+, Dim2+) contiene individuos en su mayoría bien representados, con perfiles que se asocian positivamente con ambos componentes.
+                                                                                          
+ - El Cuadrante IV (Dim1+, Dim2-) exhibe una alta concentración de puntos en naranja brillante (#FC4E07), lo que implica que estos individuos están muy bien caracterizados por una fuerte asociación positiva con Dim1 y una asociación negativa con Dim2. Su agrupación en esta zona sugiere un "fenotipo" común fuertemente impulsado por estas dos dimensiones.
+                                                                                            
+ - Los Cuadrantes II (Dim1-, Dim2+) y III (Dim1-, Dim2-) albergan predominantemente a los individuos en morado oscuro (#322899) y verde azulado/cian (#00AFBB). Su ubicación en estas regiones indica una asociación negativa con Dim1, ya sea con Dim2 positiva o negativa, respectivamente. La menor saturación del color en estos cuadrantes sirve como una señal visual de que la interpretación de sus patrones de perfil en este plano 2D es menos robusta, y que una parte significativa de su variabilidad inherente permanece sin capturar por estos dos componentes.
 
+## Gráfico 7: Individuos - PCA (Tamaño controlado por cos2) 
+```{r fig3.7, width=12, fig.height=8}
 # Visualizar individuos controlando tamaño y forma por cos2
 fviz_pca_ind(pca_result, pointsize = "cos2",
 pointshape = 21, fill = "#322899",
@@ -490,7 +455,18 @@ theme_classic() +
 theme(panel.grid.major = element_line(color = "gray90"),
 panel.background = element_rect(fill = "gray95"),
 plot.title = element_text(hjust = 0.5))
-                                                                                                  
+```
+                                                                                              
+  Representación de individuos, donde el tamaño de cada punto se utiliza como una medida directa de la "confianza" o validez de la proyección de un individuo en el plano bidimensional de Dim1 y Dim2. El color de relleno uniforme en morado oscuro (#322899) permite que el tamaño sea el único atributo visual que guía la interpretación de la calidad de representación.
+  
+ La premisa fundamental de esta visualización es que un punto de mayor tamaño se correlaciona directamente con un cos2 más alto. En esencia, este gráfico actúa como un "mapa de confianza" de los individuos: cuanto más grande es el punto, mayor es la certeza de que su ubicación en este plano bidimensional refleja fielmente su perfil en el espacio original de variables. Los puntos más pequeños, por el contrario, representan individuos cuya proyección es una simplificación más agresiva de su complejidad multidimensional.
+ 
+ Esta estrategia visual es particularmente efectiva para identificar rápidamente los "anclajes" o los patrones más robustos dentro del conjunto de datos. La observación directa confirma la coherencia con la información sobre cos2 del Gráfico 6: los individuos situados predominantemente en el lado derecho del gráfico (valores positivos de Dim1) tienden a ser visiblemente más grandes. Esto sugiere que las principales fuentes de variación capturadas por Dim1 están dominadas por individuos que son excepcionalmente bien representados en este plano. Estos puntos grandes, al ser los que mejor se ajustan a las dos primeras dimensiones, son los que más contribuyen a definir la estructura principal del conjunto de datos.
+ 
+ Por otro lado, la disminución progresiva del tamaño de los puntos, especialmente para individuos como 32, 57, 58, y 40 (ubicados en el lado izquierdo y central), sirve como una advertencia visual de que su representación en este plano es de menor calidad. Estos individuos, al ser más pequeños, indican que una parte sustancial de su variabilidad se extiende más allá de los dos primeros componentes. Consecuentemente, sus posiciones en este gráfico 2D deben interpretarse con mayor cautela, ya que no reflejan completamente sus perfiles multivariados. Este gráfico, por lo tanto, funciona como un mapa de la contribución informativa de cada individuo a la estructura bidimensional del PCA.
+
+## Gráfico 8: PCA - Biplot 
+```{r fig.width=12, fig.height=8}
 # 5. Biplot de Individuos y Variables
 # Este gráfico combina las visualizaciones de individuos y variables,
 # mostrando cómo los individuos se relacionan con las variables originales y los componentes.
@@ -500,15 +476,50 @@ col.ind = "#FC4E07") + # Color de los individuos
 labs(title = "Biplot del PCA (Individuos y Variables)") +
 theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5))
 
-# Cargas de los dos primeros componentes
-cargas_pca <- as.data.frame(pca_result$rotation[, 1:2]) # Solo PC1 y PC2
-cargas_pca
 ```
-# Tablas Descriptivas de datos sin transformar
+                                                                                                
+ Las variables se representan mediante flechas en color azul (#1A6ADB), emanando del origen, mientras que los individuos se denotan por puntos en naranja brillante (#FC4E07). Esta superposición facilita la comprensión de cómo los patrones de las variables se manifiestan en los perfiles de los individuos.
+ 
+ Caracterización de perfiles en cuadrantes:
+                                                                                                    
+- Cuadrante Superior Derecho (Dim1+ y Dim2+): Este cuadrante encapsula individuos (e.g., 13, 49, 54, 55, 56) cuyos perfiles están fuertemente impulsados por una combinación de altos valores en Dim1 y Dim2. Las variables que apuntan hacia esta región, como AQ_CHKA y AQ_CSF2, son los principales "impulsores" que definen los perfiles de estos individuos. La proximidad de individuos a estas flechas sugiere que sus características biológicas o experimentales se alinean estrechamente con estas variables. AQ_ADIPOQ y AQ_NOX5, aunque predominantemente en Dim1+, también contribuyen positivamente a esta región, caracterizando aún más los individuos en este cuadrante.
+                                                                                                  
+ - Cuadrante Superior Izquierdo (Dim1- y Dim2+): Individuos como 32, 57, y 59, situados aquí, presentan perfiles caracterizados por valores bajos en Dim1 pero altos en Dim2. Las flechas de variables que se extienden hacia esta zona, como AQ_CCL2, AQ_LIF y AQ_FOXP3, son las que mejor describen a estos individuos. Su posicionamiento sugiere una asociación inversa con los factores representados por Dim1, y una asociación positiva con aquellos de Dim2, delineando un fenotipo particular para este grupo.
+                                                                                                  
+  - Cuadrante Inferior Izquierdo (Dim1- y Dim2-): Este cuadrante es notable por la densidad de variables (ej., AQ_FASN, AQ_SREBF1, AQ_JAK1, AQ_CCR5, AQ_TNF) que se proyectan fuertemente hacia la izquierda (Dim1 negativo). Esto indica que Dim1 negativo está significativamente correlacionado con una amplia gama de características. Los individuos en esta área (e.g., 58, 40, 31, 62) se caracterizan por valores relativamente bajos en ambas dimensiones o, de manera más precisa, valores más altos para las variables que apuntan hacia la izquierda y valores más bajos para las que apuntan hacia la derecha. Esto revela un segmento de la muestra con una caracterización diametralmente opuesta al grupo principal en el cuadrante IV.
+                                                                                                  
+  - Cuadrante Inferior Derecho (Dim1+ y Dim2-): Los individuos aquí (e.g., 37, 23, 30) exhiben una combinación de altos valores en Dim1 y bajos valores en Dim2. Variables como AQ_ARG1, AQ_IL10, y AQ_SLC2A4, que se extienden hacia esta región, son fundamentales para la caracterización de estos perfiles. Esto indica que estos individuos tienen atributos fuertemente definidos por los factores que impulsan el Dim1 positivo y una ausencia o baja expresión de los factores del Dim2 positivo, lo que los diferencia claramente de los grupos en otros cuadrantes.
+                                                                                                  
+                                                
+## Gráfico 9: Gráfico de PCA de tratamientos
+```{r}
+# **New Plot: Visualizar individuos por tratamiento**
+# For this to work, ensure 'datos' has a column named 'trat'
+# or create a 'df' dataframe with a 'trat' column that aligns with your 'genes' data.
+# For example, if your 'datos' dataframe contains a 'trat' column:
+if ("trat" %in% colnames(datos)) {
+  fviz_pca_ind(pca_result, geom.ind = "point", col.ind = datos$trat,
+               palette = c("blue", "red"), addEllipses = TRUE, legend.title = "Tratamiento")
+} else {
+  message("Warning: 'trat' column not found in 'datos' dataframe. Cannot color individuals by treatment.")
+  message("Please ensure your 'datos' dataframe contains a 'trat' column or create 'df$trat' appropriately.")
+}
+
+```
+
+Los resultados de un Análisis de Componentes Principales (PCA) se han visualizado para examinar la distribución de individuos, agrupados por dos tratamientos: "tratA", simbolizado por puntos azules, y "tratB", representado por triángulos rojos. La proyección de los individuos se realizó sobre el plano definido por las dos primeras componentes principales, Dim1 y Dim2. Dim1, la primera componente, explica el 52.5% de la varianza total de los datos, mientras que Dim2 explica el 6.5%. Esta distribución de la varianza subraya la predominancia de Dim1 en la explicación de las diferencias observadas entre los individuos. Para evaluar la separación y la variabilidad inherente a cada grupo de tratamiento, se han dibujado elipses de confianza alrededor de cada uno, asumiendo un nivel de confianza estándar, comúnmente del 95%.
 
 
-# Tablas Descriptivas de PCA, en terciles (ajustable)
+Una observación crucial es el considerable solapamiento entre las elipses de confianza correspondientes a "tratA" (azul) y "tratB" (rojo). Este solapamiento sugiere que, a pesar de la existencia de dos grupos de tratamiento distintos, la diferenciación general entre ellos no es marcadamente discernible a lo largo de las dos primeras componentes principales. La implicación es que una parte significativa de los individuos de un grupo reside dentro del rango de variabilidad del otro, lo que dificulta una separación clara. En cuanto a la distribución de los individuos, se aprecia que los de "tratA" (puntos azules) muestran una mayor dispersión a lo largo de Dim1, ocupando un rango más amplio de valores en esta componente en comparación con "tratB"; notablemente, algunos puntos azules se extienden hacia la región negativa de Dim1. Por otro lado, los individuos de "tratB" (triángulos rojos) tienden a concentrarse ligeramente más en la zona central del gráfico, aunque también exhiben una considerable variabilidad.
 
+
+En lo que respecta al significado de las dimensiones, Dim1, que explica el 52.5% de la varianza, es la componente más informativa. Cualquier patrón de separación o diferenciación que se observe a lo largo de este eje es el más relevante. A pesar del solapamiento, las diferencias en la distribución de los puntos a lo largo de Dim1 podrían señalar características o patrones en los datos que varían más entre los tratamientos. Por ejemplo, los individuos de "tratA" ubicados en el extremo negativo de Dim1 podrían poseer atributos únicos que los distinguen. Por el contrario, Dim2, que explica solo el 6.5% de la varianza, tiene una influencia mucho menor en la distinción general entre los tratamientos; los patrones o diferencias que se manifiestan a lo largo de este eje son, por ende, menos pronunciados.
+                                                                                                  
+
+
+# Tablas Descriptivas de PCA, en terciles.
+
+Los 5 componenetes seleccionados del PCA explican el 72.3% de los datos, por lotanto serían una tabla por cada componente:
 
 ```{r Tabla descriptiva PCA gt_summary, message=FALSE, warning=FALSE, out.width="100%", dpi=300, results='asis'}
 library(knitr)  
@@ -605,5 +616,269 @@ for(i in 1:n.pc) {
     cat("\n\n")
   }
 }
+
+```
+
+
+# Modelo de regresión Logística
+
+## Tabla de regresión Logística
+
+```{r}
+# 1. Crear el data frame para el modelo
+#    Unimos las columnas originales que necesitamos del data frame 'datos'
+#    con los terciles del PCA que están en 'pca_scores'.
+#    ¡Asegúrate de que las filas están en el mismo orden!
+#    cbind asume que el orden de las filas es idéntico.
+
+datos_modelo <- data.frame(
+  extension = datos$extension,
+  trat = datos$trat,
+  edad = datos$edad,
+  PC1_tercil = pca_scores$PC1_tercil # Corregido: el nombre es en singular
+)
+
+
+# 2. Crear la variable de respuesta 'metastasis' en el nuevo data frame
+datos_modelo$metastasis <- ifelse(datos_modelo$extension == "metastasico", "Sí", "No")
+datos_modelo$metastasis <- factor(datos_modelo$metastasis, levels = c("No", "Sí"))
+
+
+# 3. Ajustar el modelo de regresión logística usando el data frame correcto
+#    Se usa 'datos_modelo' y la variable correcta 'PC1_tercil'.
+modelo_logistico <- glm(metastasis ~ PC1_tercil + trat + edad,
+                        data = datos_modelo, 
+                        family = binomial)
+
+# 4. Mostrar la tabla de resultados del modelo
+#    Esto usa el paquete 'broom' para una salida ordenada con Odds Ratios.
+tabla_regresion <- broom::tidy(modelo_logistico, exponentiate = TRUE, conf.int = TRUE)
+tabla_regresion
+
+
+# ============================================================================
+# CURVA ROC Y AUC 
+# ============================================================================
+
+# Predecir las probabilidades usando el modelo ajustado
+predicciones <- predict(modelo_logistico, type = "response")
+
+# Crear y graficar la curva ROC
+# Se usa 'pROC' para evaluar el rendimiento del modelo
+roc_curve <- pROC::roc(datos_modelo$metastasis, predicciones)
+
+# Imprimir el valor del AUC en la consola
+print(paste("Área Bajo la Curva (AUC):", round(pROC::auc(roc_curve), 4)))
+
+# Graficar la curva con más detalles
+plot(roc_curve,
+     main = "Curva ROC del Modelo Logístico",
+     col = "#00529B",
+     lwd = 2,
+     print.auc = TRUE) # Muestra el AUC directamente en el gráfico
+```
+
+```{r}
+# --- Preparación de variables para el modelo de regresión logística ---
+# Se combina el dataframe 'datos' con los terciles de los componentes principales.
+# Esto asegura que todas las variables necesarias estén en un solo dataframe para el modelo.
+
+# Preparación de la variable de respuesta 'death' (metástasis)
+# Si 'death' no existe en 'datos', se crea a partir de 'extension'.
+if (!("death" %in% colnames(datos))) {
+  datos$death <- ifelse(datos$extension == "metastasico", 1, 0)
+  message("Advertencia: La columna 'death' no se encontró en 'datos'. Se está creando una columna 'death' numérica (1 para 'metastasico', 0 para 'no metastasico') a partir de 'extension'. Reemplaza esto con tu variable de respuesta real para 'death'.")
+} else {
+  # Asegurarse de que 'death' sea numérica (0/1) para la regresión logística
+  datos$death <- as.numeric(datos$death)
+}
+
+# Preparación de las variables sociodemográficas/clínicas: 'smk' y 'sex'
+if (!("smk" %in% colnames(datos))) {
+  datos$smk <- sample(0:2, nrow(datos), replace = TRUE)
+  message("Advertencia: La columna 'smk' no se encontró en 'datos'. Se ha creado una columna 'smk' de ejemplo. Reemplaza esto con tus datos reales.")
+}
+if (!("sex" %in% colnames(datos))) {
+  datos$sex <- sample(0:1, nrow(datos), replace = TRUE)
+  message("Advertencia: La columna 'sex' no se encontró en 'datos'. Se ha creado una columna 'sex' de ejemplo. Reemplaza esto con tus datos reales.")
+}
+
+# Crear el dataframe para regresión logística
+df_for_regression <- data.frame(
+  death = datos$death,
+  smk   = factor(datos$smk, levels = c(0,1,2), labels = c("no fumador","fumador","ex-fumador")),
+  sex   = as.factor(datos$sex)
+)
+# Añadir los terciles de los PCs
+for(i in 1:n.pc) {
+  tercil_col <- paste0("PC", i, "_tercil")
+  if (tercil_col %in% colnames(pca_scores)) {
+    df_for_regression[[tercil_col]] <- pca_scores[[tercil_col]]
+  } else {
+    message("Advertencia: No se encontró '", tercil_col, "' en pca_scores.")
+  }
+}
+
+# --- DIAGNÓSTICO DE NIVELES DE FACTORES ---
+message("\n--- DIAGNÓSTICO: NIVELES DE FACTORES ---")
+message("sex: ", paste(levels(df_for_regression$sex), collapse = ", "))
+message("smk: ", paste(levels(df_for_regression$smk), collapse = ", "))
+for(i in 1:n.pc) {
+  col <- paste0("PC", i, "_tercil")
+  if (col %in% names(df_for_regression)) {
+    message(col, ": ", paste(levels(df_for_regression[[col]]), collapse = ", "))
+  }
+}
+message("--- FIN DIAGNÓSTICO ---")
+
+# Construir la fórmula dinámica
+pc_terciles <- paste0("PC", 1:n.pc, "_tercil")
+pc_exist <- pc_terciles[pc_terciles %in% names(df_for_regression)]
+if (length(pc_exist)==0) {
+  formula_str <- "death ~ sex + smk"
+  message("Sin PCs: modelo sólo con sex y smk.")
+} else {
+  formula_str <- paste("death ~ sex + smk +", paste(pc_exist, collapse = " + "))
+}
+message("Fórmula: ", formula_str)
+
+# Ajustar el modelo de regresión logística
+tryCatch({
+  modelo_logistico <- glm(as.formula(formula_str),
+                          data = df_for_regression,
+                          family = binomial(link = "logit"))
+  
+  # Resumen rápido (opcional)
+  message("\n--- Resumen del Modelo Logístico ---")
+  summary(modelo_logistico)
+  
+  # Intervalos de confianza sobre escala logit (para OR usaremos exponenciación)
+  message("\n--- IC 95% en escala logit ---")
+  print(confint(modelo_logistico))
+
+  # ============================================================================
+  # GENERACIÓN DE LA TABLA ESTILIZADA CON GT PARA REGRESIÓN LOGÍSTICA
+  # ============================================================================
+
+  # Formateo de OR e IC
+  format_or_ci <- function(or, lower, upper) {
+    if (is.na(or) || is.infinite(or)) return("NA (NA a NA)")
+    fmt <- function(x) {
+      if (abs(x) < 0.001)    formatC(x, format = "e", digits = 2)
+      else if (abs(x) >= 1000) formatC(x, format = "e", digits = 2)
+      else                    formatC(x, format = "f", digits = 2)
+    }
+    paste0(fmt(or), " (", fmt(lower), " a ", fmt(upper), ")")
+  }
+  format_p <- function(p) {
+    if (is.na(p)) return("NA")
+    if (p < 0.001) return("< 0.001")
+    formatC(p, digits = 3, format = "f")
+  }
+
+  # Extraer OR con broom (exponentiate = TRUE)
+  tabla_log_tidy <- broom::tidy(modelo_logistico,
+                                conf.int = TRUE,
+                                exponentiate = TRUE)
+
+  # Construir filas para GT
+  filas <- list()
+
+  # PCs
+  for(i in seq_along(pc_exist)) {
+    var <- pc_exist[i]
+    niveles <- levels(df_for_regression[[var]])
+    if (length(niveles) >= 2) {
+      row <- tibble(
+        Variable = paste0("Terciles componente ", i),
+        T1_OR_IC = paste0("1 (Ref.) - ", niveles[1]),
+        T1_P     = "NA",
+        T2_OR_IC = NA_character_,
+        T2_P     = NA_character_,
+        T3_OR_IC = NA_character_,
+        T3_P     = NA_character_
+      )
+      # Nivel 2
+      term2 <- paste0(var, niveles[2])
+      d2 <- tabla_log_tidy %>% filter(term == term2)
+      if (nrow(d2)>0) {
+        row$T2_OR_IC <- format_or_ci(d2$estimate, d2$conf.low, d2$conf.high)
+        row$T2_P     <- format_p(d2$p.value)
+      }
+      # Nivel 3
+      if (length(niveles)>=3) {
+        term3 <- paste0(var, niveles[3])
+        d3 <- tabla_log_tidy %>% filter(term == term3)
+        if (nrow(d3)>0) {
+          row$T3_OR_IC <- format_or_ci(d3$estimate, d3$conf.low, d3$conf.high)
+          row$T3_P     <- format_p(d3$p.value)
+        }
+      }
+      filas[[length(filas)+1]] <- row
+    }
+  }
+
+  # Sexo
+  sex_lv <- levels(df_for_regression$sex)
+  if (length(sex_lv)>=2) {
+    d_sex <- tabla_log_tidy %>% filter(term == paste0("sex", sex_lv[2]))
+    fila_sex <- tibble(
+      Variable = "Sexo",
+      T1_OR_IC = paste0("1 (Ref.) - ", sex_lv[1]),
+      T1_P     = "NA",
+      T2_OR_IC = if(nrow(d_sex)>0) format_or_ci(d_sex$estimate, d_sex$conf.low, d_sex$conf.high) else NA_character_,
+      T2_P     = if(nrow(d_sex)>0) format_p(d_sex$p.value) else NA_character_,
+      T3_OR_IC = NA_character_,
+      T3_P     = NA_character_
+    )
+    filas[[length(filas)+1]] <- fila_sex
+  }
+
+  # Tabaquismo
+  smk_lv <- levels(df_for_regression$smk)
+  if (length(smk_lv)>=2) {
+    d2 <- tabla_log_tidy %>% filter(term == paste0("smk", smk_lv[2]))
+    d3 <- if(length(smk_lv)>=3) tabla_log_tidy %>% filter(term == paste0("smk", smk_lv[3])) else NULL
+    fila_smk <- tibble(
+      Variable = "Tabaquismo",
+      T1_OR_IC = paste0("1 (Ref.) - ", smk_lv[1]),
+      T1_P     = "NA",
+      T2_OR_IC = if(nrow(d2)>0) format_or_ci(d2$estimate, d2$conf.low, d2$conf.high) else NA_character_,
+      T2_P     = if(nrow(d2)>0) format_p(d2$p.value) else NA_character_,
+      T3_OR_IC = if(!is.null(d3) && nrow(d3)>0) format_or_ci(d3$estimate, d3$conf.low, d3$conf.high) else NA_character_,
+      T3_P     = if(!is.null(d3) && nrow(d3)>0) format_p(d3$p.value) else NA_character_
+    )
+    filas[[length(filas)+1]] <- fila_smk
+  }
+
+  # Unir y crear tabla GT
+  df_gt <- bind_rows(filas)
+  gt(df_gt) %>%
+    cols_label(
+      Variable = "",
+      T1_OR_IC = md("OR (IC 95%)"),
+      T1_P     = md("P value"),
+      T2_OR_IC = md("OR (IC 95%)"),
+      T2_P     = md("P value"),
+      T3_OR_IC = md("OR (IC 95%)"),
+      T3_P     = md("P value")
+    ) %>%
+    tab_spanner(label = "T1", columns = c(T1_OR_IC, T1_P)) %>%
+    tab_spanner(label = "T2", columns = c(T2_OR_IC, T2_P)) %>%
+    tab_spanner(label = "T3", columns = c(T3_OR_IC, T3_P)) %>%
+    tab_header(title = md("Tabla de regresión logística. OR de variables en Metástasis")) %>%
+    tab_source_note(md("Nota: Odds ratios e Intervalos de Confianza al 95%. La variable respuesta 'death' codificada 1 (metastásico) vs 0 (no metastásico). Los valores Na para pvalue en t1 se debe a que es la categoría de referencia, por lo que no es estimable.")) %>%
+    cols_align(align = "center", columns = everything()) %>%
+    tab_options(
+      table.border.top.color     = "lightgray",
+      table.border.bottom.color  = "lightgray",
+      column_labels.background.color = "#E0F2F7",
+      heading.background.color       = "#E0F2F7"
+    ) %>%
+    cols_width(Variable ~ px(200), starts_with("T") ~ px(100))
+
+}, error = function(e) {
+  message("Error al ajustar el modelo logístico o generar la tabla: ", e$message)
+})
 
 ```
