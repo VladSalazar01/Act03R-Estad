@@ -490,6 +490,9 @@ theme_minimal(base_size = 12) + theme(plot.title = element_text(hjust = 0.5))
                                                                                                   
   - Cuadrante Inferior Derecho (Dim1+ y Dim2-): Los individuos aquí (e.g., 37, 23, 30) exhiben una combinación de altos valores en Dim1 y bajos valores en Dim2. Variables como AQ_ARG1, AQ_IL10, y AQ_SLC2A4, que se extienden hacia esta región, son fundamentales para la caracterización de estos perfiles. Esto indica que estos individuos tienen atributos fuertemente definidos por los factores que impulsan el Dim1 positivo y una ausencia o baja expresión de los factores del Dim2 positivo, lo que los diferencia claramente de los grupos en otros cuadrantes.
                                                                                                   
+
+                                                                                                 
+=======
                                                 
 ## Gráfico 9: Gráfico de PCA de tratamientos
 ```{r}
